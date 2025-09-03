@@ -74,6 +74,7 @@
 
   <script>
     const messagesDiv = document.getElementById("messages");
+    const API_URL = "https://script.google.com/d/10HHNJFT1FVWKYKV9FvMzvq8xlGHewow2Nh09mrTFf1CqgDLxZNbGQ_Pl/edit?usp=sharing"; // Replace with your Google Apps Script URL
 
     function appendMessage(text, sender) {
       const msg = document.createElement("div");
@@ -83,24 +84,22 @@
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    function botReply(input) {
-      input = input.toLowerCase();
-      if (input.includes("hello") || input.includes("hi")) return "Hello! How can I help you today?";
-      if (input.includes("weather")) return "I can't fetch weather yet, but I bet it's chilly!";
-      if (input.includes("name")) return "I'm your friendly GitHub Pages AI bot 🤖";
-      if (input.includes("bye")) return "Goodbye! 👋 Have a great day!";
-      return "I'm not sure about that, but I'm learning!";
-    }
-
-    function sendMessage() {
+    async function sendMessage() {
       const input = document.getElementById("userInput");
-      if (!input.value.trim()) return;
+      const text = input.value.trim();
+      if (!text) return;
 
-      appendMessage(input.value, "user");
-      const reply = botReply(input.value);
-      setTimeout(() => appendMessage(reply, "bot"), 500);
-
+      appendMessage(text, "user");
       input.value = "";
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ message: text })
+      });
+
+      const data = await res.json();
+      const reply = data.choices[0].message.content;
+      appendMessage(reply, "bot");
     }
   </script>
 </body>
